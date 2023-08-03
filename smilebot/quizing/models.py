@@ -36,5 +36,5 @@ class Result(models.Model):
 
 class Answer(models.Model):
     result = models.ForeignKey(Result,on_delete=models.CASCADE, related_name="answers")
-    question = models.ForeignKey(Question,on_delete=models.CASCADE, related_name="all_answers", blank=True, null=True),
+    question = models.ForeignKey(Question,on_delete=models.CASCADE, related_name="all_answers", blank=True, null=True)
     given_ans = models.CharField(max_length=200)
