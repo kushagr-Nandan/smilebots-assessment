@@ -4,17 +4,64 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from quizing import models as QuizingModels
 from rest_framework.response import Response
 # Create your views here.
-class CreateQuiz(APIView):
+class CreateExam(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     def post(self, request):
         user = request.user
-        topic = request.data.get('topic')
-        # questions = request.data.get('questions')
-        QuizingModels.Quiz.objects.create(
+        name = request.data.get('name')
+        QuizingModels.Exam.objects.create(
             user = user,
-            topic = topic
+            name = name
         )
-        return Response({"quiz Created"})
+        return Response({"Exam Created"})
+
+class CreateSection(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    def post(self, request):
+        name = request.data.get('name')
+        exam_id  = request.data.get('exam_id')
+        try:
+            exam_obj = QuizingModels.Exam.objects.get(id = exam_id)
+        except:
+            print(id)
+            return Response({"message":"wrong Exam Id entered"})
+        QuizingModels.Section.objects.create(
+            name = name,
+            exam = exam_obj
+        )
+        return Response({"Section Created"})
+
+class CreateTopic(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    def post(self, request):
+        name = request.data.get('name')
+        section_id  = request.data.get('section_id')
+        try:
+            section_obj = QuizingModels.Section.objects.get(id = section_id)
+        except:
+            print(id)
+            return Response({"message":"wrong Section Id entered"})
+        QuizingModels.Topic.objects.create(
+            name = name,
+            section = section_obj
+        )
+        return Response({"Topic Created"})
+
+class CreateQuiz(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    def post(self, request):
+        name = request.data.get('name')
+        topic_id  = request.data.get('topic_id')
+        try:
+            topic_obj = QuizingModels.Topic.objects.get(id = topic_id)
+        except:
+            print(id)
+            return Response({"message":"wrong Topic Id entered"})
+        QuizingModels.Topic.objects.create(
+            name = name,
+            topic = topic_obj
+        )
+        return Response({"Quiz Created"})
 
 class AddQuestion(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -177,27 +224,101 @@ class GetQuestions(APIView):
             }
         )
 
-class GetQuizes(APIView):
+class GetExams(APIView):
     permission_classes = [IsAuthenticated,]
     def post(self, request):
-        response_quiz_object = []
-        quizes = QuizingModels.Quiz.objects.all()
-        for q in quizes:
-            response_quiz_object.append(
+        response_exam_object = []
+        exams = QuizingModels.Exam.objects.all()
+        for e in exams:
+            response_exam_object.append(
                 {
-                    "Id":q.id,
-                    "Topic":q.topic
+                    "Id":e.id,
+                    "Name":e.name
                 }
             )
         return Response(
             {
-                "Message":"Quizes Fetched Successfully",
-                "Quizes":response_quiz_object
+                "Message":"Exams Fetched Successfully",
+                "Exams":response_exam_object
             }
         )
 
 
+class GetSections(APIView):
+    permission_classes = [IsAuthenticated,]
+    def post(self, request):
+        response_section_object = []
+        exam_id  = request.data.get('exam_id')
+        try:
+            exam_obj = QuizingModels.Exam.objects.get(id = exam_id)
+        except:
+            print(id)
+            return Response({"message":"wrong Exam Id entered"})
+        sections = exam_obj.sections.all()
+        for s in sections:
+            response_section_object.append(
+                {
+                    "Id":s.id,
+                    "Name":s.name
+                }
+            )
+        return Response(
+            {
+                "Message":"Sections Fetched Successfully",
+                "Sections":response_section_object
+            }
+        )
+    
+class GetTopics(APIView):
+    permission_classes = [IsAuthenticated,]
+    def post(self, request):
+        response_topic_object = []
+        section_id  = request.data.get('section_id')
+        try:
+            section_obj = QuizingModels.Section.objects.get(id = section_id)
+        except:
+            print(id)
+            return Response({"message":"wrong Section Id entered"})
+        topics = section_obj.topics.all()
+        for t in topics:
+            response_topic_object.append(
+                {
+                    "Id":t.id,
+                    "Name":t.name
+                }
+            )
+        return Response(
+            {
+                "Message":"Topics Fetched Successfully",
+                "Topics":response_topic_object
+            }
+        )
 
+class GetQuizes(APIView):
+    permission_classes = [IsAuthenticated,]
+    def post(self, request):
+        response_quiz_object = []
+        topic_id  = request.data.get('topic_id')
+        try:
+            topic_obj = QuizingModels.Topic.objects.get(id = topic_id)
+        except:
+            print(id)
+            return Response({"message":"wrong Topic Id entered"})
+        quizes = topic_obj.quizes.all()
+        for q in quizes:
+            response_quiz_object.append(
+                {
+                    "Id":q.id,
+                    "Name":q.name
+                }
+            )
+        return Response(
+            {
+                "Message":"Topics Fetched Successfully",
+                "Quizes":response_quiz_object
+            }
+        )
+    
     
 
         
