@@ -57,7 +57,7 @@ class CreateQuiz(APIView):
         except:
             print(id)
             return Response({"message":"wrong Topic Id entered"})
-        QuizingModels.Topic.objects.create(
+        QuizingModels.Quiz.objects.create(
             name = name,
             topic = topic_obj
         )
